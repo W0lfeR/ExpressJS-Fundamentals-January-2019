@@ -33,7 +33,11 @@ const get = (key) => {
 }
 
 const getAll = () => {
-
+    if (Object.keys(data).length === 0) {
+        throw new Error('The storage is empty!');
+    } else {
+        return data;
+    }
 }
 
 const update = (key, value) => {
@@ -61,22 +65,24 @@ const clear = () => {
 }
 
 const save = () => {
-    return new Promise((resolve, reject) => {
-        let dataAsString = JSON.stringify(data);
-
-        fs.writeFile(dataFile, dataAsString, err => {
-            if(err){
-                reject(err);
-                return;
-            }
-            resolve();
-        })
-    })
+    fs.writeFileSync("storage.json", JSON.stringify(data), "utf-8")
 }
 
 
 const load = () => {
-    return new Promise((resolve, reject) => {
-        fs.readFileSync
+    if (fs.existsSync('storage.json')) {
+        const date = fs.readFileSync('storage.json');
+        data = JSON.parse(date)
     }
+}
+
+module.exports = {
+    put: put,
+    get: get, 
+    getAll: getAll,
+    update: update,
+    deleteItem: deleteItem,
+    clear: clear,
+    save: save,
+    load: load
 }
