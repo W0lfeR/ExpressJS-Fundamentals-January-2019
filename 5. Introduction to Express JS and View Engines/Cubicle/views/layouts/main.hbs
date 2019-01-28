@@ -19,6 +19,9 @@
             </ul>
         </header>
         <main>
+            {{#if globalError}}
+            <div class="error">{{globalError}}</div>
+            {{/if}}
             {{{body}}}
         </main>
     </div>
