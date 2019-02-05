@@ -24,8 +24,8 @@ module.exports = app => {
     app.post('/car/rent/:id',  restrictedPages.isAuthed, carController.rentPost);
 
     //Edit
-    app.get('/car/edit/:id', restrictedPages.isAuthed, carController.editGet);
-    app.post('/car/edit/:id', restrictedPages.isAuthed, carController.editPost);
+    app.get('/car/edit/:id', restrictedPages.hasRole('Admin'), carController.editGet);
+    app.post('/car/edit/:id', restrictedPages.hasRole('Admin'), carController.editPost);
 
     app.all('*', (req, res) => {
         res.status(404);
