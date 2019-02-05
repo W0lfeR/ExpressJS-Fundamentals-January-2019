@@ -1,34 +1,94 @@
-const encryption = require('../util/encryption')
+const encryption = require('../util/encryption');
+const User = require('../models/User');
 
 module.exports = {
     registerGet: (req, res) => {
         res.render('user/register')
     },
+
+
+
+
+
     registerPost: async (req, res) => {
-        const userBody = req.body
-        if (!userBody.username || !userBody.password || !userBody.repeatPassword) {
-            userBody.error = 'Please fill all fields!'
-            res.render('user/register', userBody);
-            return;
-        }
-        if (userBody.password !== userBody.repeatPassword) {
-            userBody.error = 'Both passwords should match'
-            res.render('user/register', userBody);
-            return;
-        }
+        const reqUser = req.body;
         const salt = encryption.generateSalt();
-        const hashedPass
-
-
-
+        const hashedPass =
+            encryption.generateHashedPassword(salt, reqUser.password);
+        try {
+            const user = await User.create({
+                username: reqUser.username,
+                hashedPass,
+                salt,
+                firstName: reqUser.firstName,
+                lastName: reqUser.lastName,
+                roles: ['User']
+            });
+            req.logIn(user, (err, user) => {
+                if (err) {
+                    res.locals.globalError = err;
+                    res.render('user/register', user);
+                } else {
+                    res.redirect('/');
+                }
+            });
+        } catch (e) {
+            console.log(e);
+            res.locals.globalError = e;
+            res.render('user/register');
+        }
     },
+
+
+
     logout: (req, res) => {
-        // TODO:
+        req.logout();
+        res.redirect('/')
     },
+
+
+
+
     loginGet: (req, res) => {
-        // TODO:
+        res.render('user/login')
     },
+
+
+
+
     loginPost: async (req, res) => {
-        // TODO:
-    }
+        const reqUser = req.body;
+        try {
+            const user = await User.findOne({ username: reqUser.username });
+            if (!user) {
+                errorHandler('Invalid user data');
+                return;
+            }
+
+            if (!user.authenticate(reqUser.password)) {
+                errorHandler('Invalid user data');
+                return;
+            }
+
+            req.logIn(user, (err, user) => {
+                if (err) {
+                    errorHandler(err);
+                } else {
+                    res.redirect('/');
+                }
+            });
+        } catch (e) {
+            errorHandler(e);
+        }
+
+        function errorHandler(e) {
+            console.log(e);
+            res.locals.globalError = e;
+            res.render('user/login');
+        }
+    },
+
+    myRent: (req, res) => {
+
+    },
 };
