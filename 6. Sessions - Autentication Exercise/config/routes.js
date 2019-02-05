@@ -12,14 +12,18 @@ module.exports = app => {
     app.get('/user/login', userController.loginGet);
     app.post('/user/login', userController.loginPost);
     app.post('/user/logout', userController.logout);
+    app.get('/user/rents', restrictedPages.isAuthed, userController.myRent);
 
 
     app.get('/car/add', restrictedPages.hasRole('Admin'), carController.addGet);
     app.post('/car/add', restrictedPages.hasRole('Admin'), carController.addPost);
-    app.get('/car/all', carController.allCars); // This route should be available for all. 
-    app.get('/car/rents', restrictedPages.isAuthed, carController.myRent);
+    app.get('/car/all', carController.allCars); // This route should be available for all.
+    
+    
     app.get('/car/rent/:id', restrictedPages.isAuthed, carController.rentGet); // This route should be available for all registered users. Including admins.
     app.post('/car/rent/:id',  restrictedPages.isAuthed, carController.rentPost);
+
+    //Edit
     app.get('/car/edit/:id', restrictedPages.isAuthed, carController.editGet);
     app.post('/car/edit/:id', restrictedPages.isAuthed, carController.editPost);
 
